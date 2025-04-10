@@ -28,8 +28,9 @@ The project is divided into two apps:
 
 
 ## TO DO
+- Fix typescript errors.
+
 ### `backend`
-- Add test coverage
 - Collaborators (optional)
 - Rate limiting (optional)
 

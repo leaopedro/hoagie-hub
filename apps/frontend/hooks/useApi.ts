@@ -1,6 +1,6 @@
-import { useMemo } from 'react';
-import { useUser } from '../context/UserContext';
-import { createApi } from '../services/api';
+import { useMemo } from "react";
+import { useUser } from "../context/UserContext";
+import { createApi } from "../services/api";
 
 export const useApi = () => {
   const { user } = useUser();

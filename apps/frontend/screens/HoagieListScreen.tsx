@@ -1,7 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, ActivityIndicator, Image } from 'react-native';
-import { useUser } from '../context/UserContext';
-import { createApi } from '../services/api';
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  FlatList,
+  StyleSheet,
+  ActivityIndicator,
+  Image,
+  Button,
+} from "react-native";
+import { useUser } from "../context/UserContext";
+import { createApi } from "../services/api";
+import { useNavigation } from "@react-navigation/native";
 
 type Hoagie = {
   _id: string;
@@ -17,7 +26,7 @@ type Hoagie = {
 
 export default function HoagieListScreen() {
   const { user } = useUser();
-
+  const navigation = useNavigation();
   const [hoagies, setHoagies] = useState<Hoagie[]>([]);
   const [offset, setOffset] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -29,7 +38,9 @@ export default function HoagieListScreen() {
     const api = createApi(user);
     try {
       setLoading(true);
-      const res = await api.get(`/hoagies?limit=${limit}&offset=${offsetValue}`);
+      const res = await api.get(
+        `/hoagies?limit=${limit}&offset=${offsetValue}`,
+      );
       if (offsetValue === 0) {
         setHoagies(res.data.data);
       } else {
@@ -37,7 +48,7 @@ export default function HoagieListScreen() {
       }
       setTotal(res.data.total);
     } catch (err) {
-      console.error('Failed to load hoagies', err);
+      console.error("Failed to load hoagies", err);
     } finally {
       setLoading(false);
     }
@@ -64,23 +75,33 @@ export default function HoagieListScreen() {
 
   const renderHoagie = ({ item }: { item: Hoagie }) => (
     <View style={styles.card}>
-      {item.image && <Image source={{ uri: item.image }} style={styles.image} />}
+      {item.image && (
+        <Image source={{ uri: item.image }} style={styles.image} />
+      )}
       <Text style={styles.name}>{item.name}</Text>
       <Text style={styles.meta}>Created by: {item.creator.name}</Text>
-      <Text style={styles.meta}>Ingredients: {item.ingredients.join(', ')}</Text>
+      <Text style={styles.meta}>
+        Ingredients: {item.ingredients.join(", ")}
+      </Text>
       <Text style={styles.meta}>Comments: {item.commentCount}</Text>
     </View>
   );
 
   return (
     <View style={styles.container}>
+      <Button
+        title="New Hoagie"
+        onPress={() => navigation.navigate("CreateHoagie")}
+      />
       <FlatList
         data={hoagies}
         renderItem={renderHoagie}
         keyExtractor={(item) => item._id}
         onEndReached={loadMore}
         onEndReachedThreshold={0.5}
-        ListFooterComponent={loading ? <ActivityIndicator size="small" /> : null}
+        ListFooterComponent={
+          loading ? <ActivityIndicator size="small" /> : null
+        }
       />
     </View>
   );
@@ -89,11 +110,11 @@ export default function HoagieListScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 16 },
   card: {
-    backgroundColor: '#f7f7f7',
+    backgroundColor: "#f7f7f7",
     borderRadius: 8,
     padding: 16,
     marginBottom: 12,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
@@ -102,6 +123,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 8,
   },
-  name: { fontSize: 18, fontWeight: 'bold', marginBottom: 4 },
-  meta: { fontSize: 14, color: '#555', marginBottom: 2 },
+  name: { fontSize: 18, fontWeight: "bold", marginBottom: 4 },
+  meta: { fontSize: 14, color: "#555", marginBottom: 2 },
 });

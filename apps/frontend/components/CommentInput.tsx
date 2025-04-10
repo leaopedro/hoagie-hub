@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { View, TextInput, Button, StyleSheet, KeyboardAvoidingView, Platform } from "react-native";
+import { KeyboardAvoidingView, Platform, StyleSheet } from "react-native";
+import { TextInput, Button } from "react-native-paper";
 import { useApi } from "../hooks/useApi";
 
 type Props = {
@@ -19,7 +20,6 @@ export default function CommentInput({ hoagieId, onCommentPosted }: Props) {
         hoagieId,
         text: text.trim(),
       });
-
       setText("");
       onCommentPosted();
     } catch (err) {
@@ -28,25 +28,34 @@ export default function CommentInput({ hoagieId, onCommentPosted }: Props) {
   };
 
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+    >
       <TextInput
-        style={styles.input}
-        placeholder="Add a comment..."
+        label="Add a comment"
+        mode="outlined"
         value={text}
         onChangeText={setText}
+        style={styles.input}
       />
-      <Button title="Post Comment" onPress={handleSubmit} disabled={!text.trim()} />
+      <Button
+        mode="contained"
+        onPress={handleSubmit}
+        disabled={!text.trim()}
+        style={styles.button}
+      >
+        Post Comment
+      </Button>
     </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   input: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 6,
-    padding: 10,
-    marginBottom: 8,
     marginTop: 16,
+    marginBottom: 8,
+  },
+  button: {
+    marginBottom: 16,
   },
 });

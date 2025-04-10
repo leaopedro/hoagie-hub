@@ -1,5 +1,6 @@
 import React from "react";
-import { View, Text, ActivityIndicator, StyleSheet } from "react-native";
+import { ActivityIndicator, StyleSheet } from "react-native";
+import { Card, Text } from "react-native-paper";
 
 type Comment = {
   _id: string;
@@ -18,9 +19,7 @@ type Props = {
 };
 
 export default function CommentList({ comments, loading }: Props) {
-  if (loading) {
-    return <ActivityIndicator />;
-  }
+  if (loading) return <ActivityIndicator />;
 
   if (comments.length === 0) {
     return <Text style={styles.subtle}>No comments yet.</Text>;
@@ -29,23 +28,23 @@ export default function CommentList({ comments, loading }: Props) {
   return (
     <>
       {comments.map((c) => (
-        <View key={c._id} style={styles.commentBox}>
-          <Text style={styles.commentUser}>{c.user.name}</Text>
-          <Text>{c.text}</Text>
-        </View>
+        <Card key={c._id} style={styles.card}>
+          <Card.Content>
+            <Text style={styles.user}>{c.user.name}</Text>
+            <Text>{c.text}</Text>
+          </Card.Content>
+        </Card>
       ))}
     </>
   );
 }
 
 const styles = StyleSheet.create({
-  commentBox: {
-    padding: 12,
-    backgroundColor: "#f2f2f2",
-    borderRadius: 6,
+  card: {
     marginTop: 8,
+    backgroundColor: "#f7f7f7",
   },
-  commentUser: {
+  user: {
     fontWeight: "bold",
     marginBottom: 4,
   },

@@ -1,4 +1,4 @@
-# 🥪 Hoagie Hub
+# HoagieClub Backend
 
 A sandwich recipe creation platform built with **NestJS** and **MongoDB**.
 
@@ -99,7 +99,7 @@ Returns single hoagie with `creator` + `commentCount`.
 ```json
 {
   "hoagieId": "<hoagie object_id>",
-  "text": "🔥 This sandwich goes hard!"
+  "text": "This one is good"
 }
 ```
 
@@ -146,6 +146,4 @@ Users can comment on any hoagie. Each comment includes:
 - [x] Populated `creator` in hoagie response
 - [x] Aggregated `commentCount` per hoagie
 - [x] Pagination with DTO validation
-- [ ] Collaborators (optional)
-- [ ] Rate limiting (optional)
 

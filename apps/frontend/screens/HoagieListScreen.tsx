@@ -1,17 +1,16 @@
 import React, { useEffect, useState } from "react";
 import {
   View,
-  Text,
   FlatList,
   StyleSheet,
   ActivityIndicator,
   Image,
-  Button,
   TouchableOpacity,
 } from "react-native";
 import { useUser } from "../context/UserContext";
 import { createApi } from "../services/api";
 import { useNavigation } from "@react-navigation/native";
+import { Text, Button, Card, FAB } from "react-native-paper";
 
 type Hoagie = {
   _id: string;
@@ -80,26 +79,29 @@ export default function HoagieListScreen() {
         navigation.navigate("HoagieDetail", { hoagieId: item._id })
       }
     >
-      <View style={styles.card}>
-        {item.image && (
-          <Image source={{ uri: item.image }} style={styles.image} />
-        )}
-        <Text style={styles.name}>{item.name}</Text>
-        <Text style={styles.meta}>Created by: {item.creator.name}</Text>
-        <Text style={styles.meta}>
-          Ingredients: {item.ingredients.join(", ")}
-        </Text>
-        <Text style={styles.meta}>Comments: {item.commentCount}</Text>
-      </View>
+      <Card style={styles.card}>
+        <Image
+          source={{
+            uri: item.image ?? "https://placehold.co/400x200?text=Hoagie",
+          }}
+          style={styles.image}
+        />
+        <Card.Content>
+          <Text variant="titleMedium" style={styles.name}>
+            {item.name}
+          </Text>
+          <Text style={styles.meta}>Created by: {item.creator.name}</Text>
+          <Text style={styles.meta}>
+            Ingredients: {item.ingredients.join(", ")}
+          </Text>
+          <Text style={styles.meta}>Comments: {item.commentCount}</Text>
+        </Card.Content>
+      </Card>
     </TouchableOpacity>
   );
 
   return (
     <View style={styles.container}>
-      <Button
-        title="New Hoagie"
-        onPress={() => navigation.navigate("CreateHoagie" as never)}
-      />
       <FlatList
         data={hoagies}
         renderItem={renderHoagie}
@@ -109,27 +111,44 @@ export default function HoagieListScreen() {
         ListFooterComponent={
           loading ? <ActivityIndicator size="small" /> : null
         }
+        contentContainerStyle={{ paddingBottom: 96 }}
+      />
+
+      <FAB
+        style={styles.fab}
+        icon="plus"
+        label="New Hoagie"
+        onPress={() => navigation.navigate("CreateHoagie" as never)}
       />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16 },
-  card: {
-    backgroundColor: "#f7f7f7",
-    borderRadius: 8,
+  container: {
+    flex: 1,
     padding: 16,
+  },
+  card: {
     marginBottom: 12,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    borderRadius: 8,
+    overflow: "hidden",
   },
   image: {
+    width: "100%",
     height: 160,
-    borderRadius: 8,
-    marginBottom: 8,
   },
-  name: { fontSize: 18, fontWeight: "bold", marginBottom: 4 },
-  meta: { fontSize: 14, color: "#555", marginBottom: 2 },
+  name: {
+    marginBottom: 4,
+  },
+  meta: {
+    fontSize: 14,
+    color: "#666",
+    marginBottom: 2,
+  },
+  fab: {
+    position: "absolute",
+    right: 16,
+    bottom: 16,
+  },
 });

@@ -1,10 +1,18 @@
 import React, { useState } from "react";
-import { View, TextInput, Button, StyleSheet, Text } from "react-native";
+import { View, StyleSheet, Image } from "react-native";
+import {
+  TextInput,
+  Button,
+  Text,
+  HelperText,
+  Avatar,
+} from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../App";
 import { useUser } from "../context/UserContext";
 import { useApi } from "../hooks/useApi";
+import Logo from "../assets/logo.png";
 
 type LoginScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -12,11 +20,12 @@ type LoginScreenNavigationProp = NativeStackNavigationProp<
 >;
 
 export default function LoginScreen() {
-  const [email, setEmail] = useState("pedro@test.me"); // TODO: remove 
+  const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSignup, setIsSignup] = useState(false);
+
   const navigation = useNavigation<LoginScreenNavigationProp>();
   const { user, setUser } = useUser();
   const api = useApi();
@@ -27,7 +36,6 @@ export default function LoginScreen() {
     setError("");
     setIsLoading(true);
 
-    // Simple validation
     if (!email.includes("@")) {
       setError("Please enter a valid email address.");
       setIsLoading(false);
@@ -40,7 +48,7 @@ export default function LoginScreen() {
         setUser(res.data);
         navigation.replace("Hoagies");
       } catch (err: any) {
-        if (err.response.data.statusCode === 401) {
+        if (err.response?.data?.statusCode === 401) {
           setIsSignup(true);
         } else {
           setError(
@@ -57,6 +65,7 @@ export default function LoginScreen() {
       setIsLoading(false);
       return;
     }
+
     try {
       const signupRes = await api.post("/auth/signup", { email, name });
       setUser(signupRes.data);
@@ -67,47 +76,55 @@ export default function LoginScreen() {
       );
       setIsLoading(false);
     }
-    return;
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>Email:</Text>
+      <Image source={Logo} style={styles.logo} />
       <TextInput
-        style={styles.input}
-        value={email}
-        onChangeText={setEmail}
+        label="Email"
+        mode="outlined"
         keyboardType="email-address"
         autoCapitalize="none"
+        value={email}
+        onChangeText={setEmail}
+        style={styles.input}
       />
 
       {isSignup && (
-        <>
-          <Text style={styles.label}>Name:</Text>
-          <TextInput style={styles.input} value={name} onChangeText={setName} />
-        </>
+        <TextInput
+          label="Name"
+          mode="outlined"
+          value={name}
+          onChangeText={setName}
+          style={styles.input}
+        />
       )}
 
-      {error.length > 0 && <Text style={styles.error}>{error}</Text>}
+      <HelperText type="error" visible={!!error}>
+        {error}
+      </HelperText>
 
-      <Button title="Continue" disabled={isLoading} onPress={handleLogin} />
+      <Button
+        mode="contained"
+        onPress={handleLogin}
+        loading={isLoading}
+        disabled={isLoading}
+      >
+        Continue
+      </Button>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: "center", padding: 24 },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 4,
-    padding: 10,
-    marginBottom: 12,
-  },
-  label: { fontWeight: "bold", marginBottom: 4 },
-  error: {
-    color: "red",
-    marginBottom: 12,
-    textAlign: "center",
+  container: { flex: 1, padding: 24 },
+  input: { marginBottom: 12 },
+  logo: {
+    width: 300,
+    height: 300,
+    resizeMode: "contain",
+    alignSelf: "center",
+    marginBottom: 24,
   },
 });

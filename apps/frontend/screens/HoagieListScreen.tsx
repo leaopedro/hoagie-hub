@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
   Image,
   Button,
+  TouchableOpacity,
 } from "react-native";
 import { useUser } from "../context/UserContext";
 import { createApi } from "../services/api";
@@ -74,24 +75,30 @@ export default function HoagieListScreen() {
   };
 
   const renderHoagie = ({ item }: { item: Hoagie }) => (
-    <View style={styles.card}>
-      {item.image && (
-        <Image source={{ uri: item.image }} style={styles.image} />
-      )}
-      <Text style={styles.name}>{item.name}</Text>
-      <Text style={styles.meta}>Created by: {item.creator.name}</Text>
-      <Text style={styles.meta}>
-        Ingredients: {item.ingredients.join(", ")}
-      </Text>
-      <Text style={styles.meta}>Comments: {item.commentCount}</Text>
-    </View>
+    <TouchableOpacity
+      onPress={() =>
+        navigation.navigate("HoagieDetail", { hoagieId: item._id })
+      }
+    >
+      <View style={styles.card}>
+        {item.image && (
+          <Image source={{ uri: item.image }} style={styles.image} />
+        )}
+        <Text style={styles.name}>{item.name}</Text>
+        <Text style={styles.meta}>Created by: {item.creator.name}</Text>
+        <Text style={styles.meta}>
+          Ingredients: {item.ingredients.join(", ")}
+        </Text>
+        <Text style={styles.meta}>Comments: {item.commentCount}</Text>
+      </View>
+    </TouchableOpacity>
   );
 
   return (
     <View style={styles.container}>
       <Button
         title="New Hoagie"
-        onPress={() => navigation.navigate("CreateHoagie")}
+        onPress={() => navigation.navigate("CreateHoagie" as never)}
       />
       <FlatList
         data={hoagies}

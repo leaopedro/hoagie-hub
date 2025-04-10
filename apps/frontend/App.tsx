@@ -5,11 +5,13 @@ import LoginScreen from "./screens/LoginScreen";
 import HoagieListScreen from "./screens/HoagieListScreen";
 import { UserProvider } from "./context/UserContext";
 import CreateHoagieScreen from "./screens/CreateHoagieScreen";
+import HoagieDetailScreen from "./screens/HoagieDetailScreen";
 
 export type RootStackParamList = {
   Login: undefined;
   Hoagies: undefined;
   CreateHoagie: undefined;
+  HoagieDetail: { hoagieId: string };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -30,6 +32,7 @@ export default function App() {
             component={CreateHoagieScreen}
             options={{ title: "New Hoagie" }}
           />
+          <Stack.Screen name="HoagieDetail" component={HoagieDetailScreen} options={{ title: 'Hoagie Details' }} />
         </Stack.Navigator>
       </NavigationContainer>
     </UserProvider>

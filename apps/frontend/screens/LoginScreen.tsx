@@ -12,7 +12,7 @@ type LoginScreenNavigationProp = NativeStackNavigationProp<
 >;
 
 export default function LoginScreen() {
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState("pedro@test.me"); // TODO: remove 
   const [name, setName] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);

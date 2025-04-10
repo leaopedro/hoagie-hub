@@ -43,7 +43,7 @@ export default function CreateHoagieScreen() {
     }
   };
 
-  const removeIngredient = (toRemove) => {
+  const removeIngredient = (toRemove: string) => {
     const newIngredients = ingredients.filter((ing) => ing !== toRemove);
     setIngredients(newIngredients);
   };

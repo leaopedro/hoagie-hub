@@ -1,14 +1,12 @@
 import React, { useState } from "react";
 import {
   View,
-  Text,
-  TextInput,
-  Button,
   StyleSheet,
   FlatList,
-  TouchableOpacity,
-  Alert,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
+import { TextInput, Button, Text, HelperText, Chip } from "react-native-paper";
 import { useUser } from "../context/UserContext";
 import { createApi } from "../services/api";
 import { useNavigation } from "@react-navigation/native";
@@ -33,19 +31,18 @@ export default function CreateHoagieScreen() {
 
   const addIngredient = () => {
     setError("");
-    if (ingredients.includes(ingredient)) {
+    if (!ingredient.trim()) return;
+    if (ingredients.includes(ingredient.trim())) {
       setError("Repeated ingredient");
       return;
     }
-    if (ingredient.trim()) {
-      setIngredients([...ingredients, ingredient.trim()]);
-      setIngredient("");
-    }
+
+    setIngredients([...ingredients, ingredient.trim()]);
+    setIngredient("");
   };
 
   const removeIngredient = (toRemove: string) => {
-    const newIngredients = ingredients.filter((ing) => ing !== toRemove);
-    setIngredients(newIngredients);
+    setIngredients((prev) => prev.filter((ing) => ing !== toRemove));
   };
 
   const handleSubmit = async () => {
@@ -68,63 +65,81 @@ export default function CreateHoagieScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.label}>Hoagie Name</Text>
-      <TextInput style={styles.input} value={name} onChangeText={setName} />
-
-      <Text style={styles.label}>Ingredients</Text>
-      <FlatList
-        data={ingredients}
-        renderItem={({ item }) => {
-          return (
-            <>
-              <Text style={styles.ingredient}>{item}</Text>{" "}
-              <button onClick={() => removeIngredient(item)}>X</button>
-            </>
-          );
-        }}
-        keyExtractor={(item, index) => `${item}-${index}`}
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      style={styles.container}
+    >
+      <TextInput
+        label="Hoagie Name"
+        value={name}
+        onChangeText={setName}
+        mode="outlined"
+        style={styles.input}
       />
-      <View style={styles.row}>
-        <TextInput
-          style={[styles.input, { flex: 1 }]}
-          value={ingredient}
-          onChangeText={setIngredient}
-          placeholder="Add ingredient"
-        />
-        <TouchableOpacity onPress={addIngredient} style={styles.addButton}>
-          <Text style={styles.addText}>+ Add</Text>
-        </TouchableOpacity>
+
+      <Text variant="titleSmall" style={styles.label}>
+        Ingredients
+      </Text>
+      <View style={styles.chipsContainer}>
+        {ingredients.map((ing) => (
+          <Chip
+            key={ing}
+            style={styles.chip}
+            onClose={() => removeIngredient(ing)}
+          >
+            {ing}
+          </Chip>
+        ))}
       </View>
 
-      <Text style={styles.label}>Image URL (optional)</Text>
-      <TextInput style={styles.input} value={image} onChangeText={setImage} />
+      <View style={styles.row}>
+        <TextInput
+          label="Add Ingredient"
+          value={ingredient}
+          onChangeText={setIngredient}
+          mode="outlined"
+          style={[styles.input, { flex: 1 }]}
+        />
+        <Button
+          mode="contained-tonal"
+          onPress={addIngredient}
+          style={styles.addBtn}
+        >
+          + Add
+        </Button>
+      </View>
 
-      {error ? <Text style={styles.error}>{error}</Text> : null}
+      <TextInput
+        label="Image URL (optional)"
+        value={image}
+        onChangeText={setImage}
+        mode="outlined"
+        style={styles.input}
+      />
 
-      <Button title="Create Hoagie" onPress={handleSubmit} />
-    </View>
+      {error ? (
+        <HelperText type="error" visible={true}>
+          {error}
+        </HelperText>
+      ) : null}
+
+      <Button mode="contained" onPress={handleSubmit}>
+        Create Hoagie
+      </Button>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 24 },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 4,
-    padding: 10,
+  input: { marginBottom: 12 },
+  label: { marginBottom: 8 },
+  row: { flexDirection: "row", alignItems: "center", marginBottom: 12 },
+  addBtn: { marginLeft: 8, alignSelf: "stretch", justifyContent: "center" },
+  chip: { marginRight: 6, marginBottom: 6 },
+  chipsContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
     marginBottom: 12,
   },
-  label: { fontWeight: "bold", marginBottom: 4 },
-  row: { flexDirection: "row", alignItems: "center", marginBottom: 12 },
-  addButton: {
-    marginLeft: 8,
-    backgroundColor: "#007bff",
-    padding: 10,
-    borderRadius: 4,
-  },
-  addText: { color: "white", fontWeight: "bold" },
-  ingredient: { fontSize: 14, color: "#444", marginBottom: 4 },
-  error: { color: "red", marginBottom: 12, textAlign: "center" },
 });

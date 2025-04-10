@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
 import {
   View,
-  Text,
-  StyleSheet,
-  Image,
-  ActivityIndicator,
   ScrollView,
+  StyleSheet,
+  ActivityIndicator,
+  Image,
 } from "react-native";
 import { useRoute } from "@react-navigation/native";
 import { RouteProp } from "@react-navigation/native";
@@ -13,6 +12,7 @@ import { RootStackParamList } from "../App";
 import { useApi } from "../hooks/useApi";
 import CommentInput from "../components/CommentInput";
 import CommentList from "../components/CommentList";
+import { Text, Card, Divider } from "react-native-paper";
 
 type Hoagie = {
   _id: string;
@@ -43,6 +43,7 @@ export default function HoagieDetailScreen() {
   const [loading, setLoading] = useState(true);
   const [comments, setComments] = useState<Comment[]>([]);
   const [loadingComments, setLoadingComments] = useState(true);
+  const [imageFailed, setImageFailed] = useState(false);
 
   const fetchComments = async () => {
     try {
@@ -54,6 +55,7 @@ export default function HoagieDetailScreen() {
       setLoadingComments(false);
     }
   };
+
   useEffect(() => {
     const fetchHoagie = async () => {
       try {
@@ -78,44 +80,70 @@ export default function HoagieDetailScreen() {
     );
   }
 
+  const imageSource = {
+    uri: hoagie.image ?? "https://placehold.co/400x200?text=Hoagie",
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      {hoagie.image && (
-        <Image source={{ uri: hoagie.image }} style={styles.image} />
-      )}
-      <Text style={styles.name}>{hoagie.name}</Text>
-      <Text style={styles.creator}>By: {hoagie.creator.name}</Text>
-      <Text style={styles.label}>Ingredients:</Text>
-      <Text style={styles.text}>{hoagie.ingredients.join(", ")}</Text>
+      <Card>
+        <Card.Cover
+          source={imageSource}
+          style={styles.image}
+          onError={() => setImageFailed(true)}
+        />
+        <Card.Content>
+          <Text variant="headlineMedium" style={styles.name}>
+            {hoagie.name}
+          </Text>
+          <Text style={styles.creator}>By: {hoagie.creator.name}</Text>
 
-      <Text style={styles.label}>Comments:</Text>
-      <CommentInput hoagieId={hoagieId} onCommentPosted={() => fetchComments()} />
-      <CommentList comments={comments} loading={loadingComments} />
+          <Divider style={{ marginVertical: 12 }} />
+
+          <Text variant="titleSmall" style={styles.label}>
+            Ingredients:
+          </Text>
+          <Text style={styles.text}>{hoagie.ingredients.join(", ")}</Text>
+
+          <Divider style={{ marginVertical: 12 }} />
+
+          <Text variant="titleSmall" style={styles.label}>
+            Comments:
+          </Text>
+          <CommentInput hoagieId={hoagieId} onCommentPosted={fetchComments} />
+          <CommentList comments={comments} loading={loadingComments} />
+        </Card.Content>
+      </Card>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 24 },
-  center: { flex: 1, justifyContent: "center", alignItems: "center" },
-  image: { height: 200, borderRadius: 12, marginBottom: 16 },
-  name: { fontSize: 24, fontWeight: "bold", marginBottom: 8 },
-  creator: { fontSize: 14, color: "#888", marginBottom: 16 },
-  label: { fontWeight: "bold", marginTop: 12, marginBottom: 4 },
-  text: { fontSize: 16, color: "#333" },
-  commentBox: {
-    padding: 12,
-    backgroundColor: "#f2f2f2",
-    borderRadius: 6,
-    marginTop: 8,
+  container: {
+    padding: 16,
   },
-  commentUser: {
-    fontWeight: "bold",
+  center: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  image: {
+    height: 200,
+  },
+  name: {
+    marginTop: 12,
+  },
+  creator: {
+    fontSize: 14,
+    color: "#888",
+    marginBottom: 8,
+  },
+  label: {
+    marginTop: 12,
     marginBottom: 4,
   },
-  subtle: {
-    color: "#888",
-    fontStyle: "italic",
-    marginTop: 4,
+  text: {
+    fontSize: 16,
+    color: "#333",
   },
 });

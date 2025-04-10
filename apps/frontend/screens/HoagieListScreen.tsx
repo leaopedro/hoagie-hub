@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
+import { useFocusEffect } from "@react-navigation/native";
 import {
   View,
   FlatList,
@@ -36,6 +37,7 @@ export default function HoagieListScreen() {
   const fetchHoagies = async (offsetValue: number) => {
     if (!user) return;
     const api = createApi(user);
+    if (offsetValue === 0) setHoagies([]);
     try {
       setLoading(true);
       const res = await api.get(
@@ -54,12 +56,14 @@ export default function HoagieListScreen() {
     }
   };
 
-  useEffect(() => {
-    if (user) {
-      fetchHoagies(0);
-      setOffset(0);
-    }
-  }, [user]);
+  useFocusEffect(
+    useCallback(() => {
+      if (user) {
+        fetchHoagies(0);
+        setOffset(0);
+      }
+    }, [user])
+  );
 
   useEffect(() => {
     if (user && offset > 0) {
@@ -139,6 +143,7 @@ const styles = StyleSheet.create({
     height: 160,
   },
   name: {
+    marginTop: 4,
     marginBottom: 4,
   },
   meta: {

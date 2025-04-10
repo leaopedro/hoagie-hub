@@ -44,7 +44,7 @@ export default function CreateHoagieScreen() {
   };
 
   const removeIngredient = (toRemove) => {
-    const newIngredients = ingredients.filter((ing) => ing!==toRemove);
+    const newIngredients = ingredients.filter((ing) => ing !== toRemove);
     setIngredients(newIngredients);
   };
 
@@ -76,7 +76,13 @@ export default function CreateHoagieScreen() {
       <FlatList
         data={ingredients}
         renderItem={({ item }) => {
-        return <><Text style={styles.ingredient}>{item}</Text> <button onClick={()=> removeIngredient(item)}>X</button></>}}
+          return (
+            <>
+              <Text style={styles.ingredient}>{item}</Text>{" "}
+              <button onClick={() => removeIngredient(item)}>X</button>
+            </>
+          );
+        }}
         keyExtractor={(item, index) => `${item}-${index}`}
       />
       <View style={styles.row}>

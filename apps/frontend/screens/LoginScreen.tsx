@@ -5,11 +5,8 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
-  TouchableWithoutFeedback,
-  Keyboard,
-  Image,
 } from "react-native";
-import { TextInput, Button, Text, HelperText } from "react-native-paper";
+import { TextInput, Button, HelperText } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../App";
@@ -69,11 +66,11 @@ export default function LoginScreen() {
       const signupRes = await api.post("/auth/signup", { email, name });
       setUser(signupRes.data);
     } catch (err: any) {
-      const msg =
-        err?.response?.data?.statusCode === 401
-          ? (setIsSignup(true), "")
-          : err?.message || "Login failed. Please try again later.";
-      if (msg) setError(msg);
+      if (err?.response?.data?.statusCode === 401) {
+        setIsSignup(true);
+        return;
+      }
+      setError("Login failed. Please try again later.");
     } finally {
       setIsLoading(false);
     }
@@ -84,65 +81,66 @@ export default function LoginScreen() {
       behavior={Platform.OS === "ios" ? "padding" : undefined}
       style={{ flex: 1 }}
     >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View style={styles.container}>
-          <Animated.Image
-            entering={FadeIn.duration(600)}
-            layout={Layout.springify()}
-            source={Logo}
-            style={styles.logo}
-          />
+      <View style={styles.container}>
+        <Animated.Image
+          entering={FadeIn.duration(600)}
+          layout={Layout.springify()}
+          source={Logo}
+          style={styles.logo}
+        />
 
-          {showForm && (
-            <Animated.View entering={FadeInDown.delay(300).duration(400)}>
-              <View style={styles.form}>
-                <Pressable
-                  onPress={() => {
-                    if (isSignup) {
-                      setIsSignup(false);
-                      setName("");
-                    }
+        {showForm && (
+          <Animated.View entering={FadeInDown.delay(300).duration(400)}>
+            <View style={styles.form}>
+              <Pressable
+                onPress={() => {
+                  if (isSignup) {
+                    setIsSignup(false);
+                    setName("");
+                  }
+                }}
+              >
+                <TextInput
+                  label="Email"
+                  mode="outlined"
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  disabled={isSignup}
+                  value={email}
+                  onFocus={() => {
+                    console.log("onFocus");
                   }}
-                >
-                  <TextInput
-                    label="Email"
-                    mode="outlined"
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                    disabled={isSignup}
-                    value={email}
-                    onChangeText={(text) => setEmail(text.toLowerCase())}
-                    style={styles.input}
-                  />
-                </Pressable>
+                  onChangeText={(text) => setEmail(text.toLowerCase())}
+                  style={styles.input}
+                />
+              </Pressable>
 
-                {isSignup && (
-                  <TextInput
-                    label="Name"
-                    mode="outlined"
-                    value={name}
-                    onChangeText={setName}
-                    style={styles.input}
-                  />
-                )}
+              {isSignup && (
+                <TextInput
+                  label="Name"
+                  mode="outlined"
+                  value={name}
+                  onChangeText={setName}
+                  style={styles.input}
+                />
+              )}
 
-                <HelperText type="error" visible={!!error}>
-                  {error}
-                </HelperText>
+              <HelperText type="error" visible={!!error}>
+                {error}
+              </HelperText>
 
-                <Button
-                  mode="contained"
-                  onPress={handleLogin}
-                  loading={isLoading}
-                  disabled={isLoading}
-                >
-                  Continue
-                </Button>
-              </View>
-            </Animated.View>
-          )}
-        </View>
-      </TouchableWithoutFeedback>
+              <Button
+                mode="contained"
+                onPress={handleLogin}
+                loading={isLoading}
+                disabled={isLoading}
+              >
+                Continue
+              </Button>
+            </View>
+          </Animated.View>
+        )}
+      </View>
     </KeyboardAvoidingView>
   );
 }

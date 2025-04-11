@@ -12,6 +12,8 @@ import { useUser } from "../context/UserContext";
 import { createApi } from "../services/api";
 import { useNavigation } from "@react-navigation/native";
 import { Text, Button, Card, FAB } from "react-native-paper";
+import Animated, { FadeInDown } from "react-native-reanimated";
+import IngredientChips from "../components/IngredientChips";
 
 type Hoagie = {
   _id: string;
@@ -62,7 +64,7 @@ export default function HoagieListScreen() {
         fetchHoagies(0);
         setOffset(0);
       }
-    }, [user])
+    }, [user]),
   );
 
   useEffect(() => {
@@ -78,30 +80,38 @@ export default function HoagieListScreen() {
   };
 
   const renderHoagie = ({ item }: { item: Hoagie }) => (
-    <TouchableOpacity
-      onPress={() =>
-        navigation.navigate("HoagieDetail", { hoagieId: item._id })
-      }
-    >
-      <Card style={styles.card}>
-        <Image
-          source={{
-            uri: item.image ?? "https://placehold.co/400x200?text=Hoagie",
-          }}
-          style={styles.image}
-        />
-        <Card.Content>
-          <Text variant="titleMedium" style={styles.name}>
-            {item.name}
-          </Text>
-          <Text style={styles.meta}>Created by: {item.creator.name}</Text>
-          <Text style={styles.meta}>
-            Ingredients: {item.ingredients.join(", ")}
-          </Text>
-          <Text style={styles.meta}>Comments: {item.commentCount}</Text>
-        </Card.Content>
-      </Card>
-    </TouchableOpacity>
+    <Animated.View entering={FadeInDown.duration(300)}>
+      <TouchableOpacity
+        onPress={() =>
+          navigation.navigate("HoagieDetail", { hoagieId: item._id })
+        }
+      >
+        <Card style={styles.card}>
+          <Image
+            source={{
+              uri: item.image ?? "https://placehold.co/400x200?text=Hoagie",
+            }}
+            style={styles.image}
+          />
+          <Card.Content>
+            <Text variant="titleMedium" style={styles.name}>
+              {item.name}
+            </Text>
+            <Text style={styles.meta}>Created by: {item.creator.name}</Text>
+            <IngredientChips ingredients={item.ingredients} />
+            <Button
+              style={styles.meta_right}
+              icon="comment"
+              onPress={() =>
+                navigation.navigate("HoagieDetail", { hoagieId: item._id })
+              }
+            >
+              {item.commentCount}
+            </Button>
+          </Card.Content>
+        </Card>
+      </TouchableOpacity>
+    </Animated.View>
   );
 
   return (
@@ -143,13 +153,19 @@ const styles = StyleSheet.create({
     height: 160,
   },
   name: {
-    marginTop: 4,
+    marginTop: 10,
     marginBottom: 4,
   },
   meta: {
     fontSize: 14,
     color: "#666",
     marginBottom: 2,
+  },
+  meta_right: {
+    fontSize: 14,
+    color: "#666",
+    marginBottom: 2,
+    alignSelf: "end",
   },
   fab: {
     position: "absolute",

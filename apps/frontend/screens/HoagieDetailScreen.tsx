@@ -12,7 +12,9 @@ import { RootStackParamList } from "../App";
 import { useApi } from "../hooks/useApi";
 import CommentInput from "../components/CommentInput";
 import CommentList from "../components/CommentList";
-import { Text, Card, Divider } from "react-native-paper";
+import { Text, Card, Divider, Chip } from "react-native-paper";
+import Animated, { SlideInRight } from "react-native-reanimated";
+import IngredientChips from "../components/IngredientChips";
 
 type Hoagie = {
   _id: string;
@@ -86,34 +88,35 @@ export default function HoagieDetailScreen() {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Card>
-        <Card.Cover
-          source={imageSource}
-          style={styles.image}
-          onError={() => setImageFailed(true)}
-        />
-        <Card.Content>
-          <Text variant="headlineMedium" style={styles.name}>
-            {hoagie.name}
-          </Text>
-          <Text style={styles.creator}>By: {hoagie.creator.name}</Text>
+      <Animated.View entering={SlideInRight}>
+        <Card>
+          <Card.Cover
+            source={imageSource}
+            style={styles.image}
+            onError={() => setImageFailed(true)}
+          />
+          <Card.Content>
+            <Text variant="headlineMedium" style={styles.name}>
+              {hoagie.name}
+            </Text>
+            <Text style={styles.creator}>By: {hoagie.creator.name}</Text>
 
-          <Divider style={{ marginVertical: 12 }} />
+            <Divider style={{ marginVertical: 12 }} />
 
-          <Text variant="titleSmall" style={styles.label}>
-            Ingredients:
-          </Text>
-          <Text style={styles.text}>{hoagie.ingredients.join(", ")}</Text>
+            <Text variant="titleSmall" style={styles.label}>
+              Ingredients:
+            </Text>
+            <IngredientChips ingredients={hoagie.ingredients} />
+            <Divider style={{ marginVertical: 12 }} />
 
-          <Divider style={{ marginVertical: 12 }} />
-
-          <Text variant="titleSmall" style={styles.label}>
-            Comments:
-          </Text>
-          <CommentInput hoagieId={hoagieId} onCommentPosted={fetchComments} />
-          <CommentList comments={comments} loading={loadingComments} />
-        </Card.Content>
-      </Card>
+            <Text variant="titleSmall" style={styles.label}>
+              Comments:
+            </Text>
+            <CommentInput hoagieId={hoagieId} onCommentPosted={fetchComments} />
+            <CommentList comments={comments} loading={loadingComments} />
+          </Card.Content>
+        </Card>
+      </Animated.View>
     </ScrollView>
   );
 }

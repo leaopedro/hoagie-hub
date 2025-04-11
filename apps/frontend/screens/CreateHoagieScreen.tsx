@@ -12,6 +12,8 @@ import { createApi } from "../services/api";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../App";
+import Animated, { SlideInDown } from "react-native-reanimated";
+import IngredientChips from "../components/IngredientChips";
 
 type NavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -69,63 +71,67 @@ export default function CreateHoagieScreen() {
       behavior={Platform.OS === "ios" ? "padding" : undefined}
       style={styles.container}
     >
-      <TextInput
-        label="Hoagie Name"
-        value={name}
-        onChangeText={setName}
-        mode="outlined"
-        style={styles.input}
-      />
-
-      <Text variant="titleSmall" style={styles.label}>
-        Ingredients
-      </Text>
-      <View style={styles.chipsContainer}>
-        {ingredients.map((ing) => (
-          <Chip
-            key={ing}
-            style={styles.chip}
-            onClose={() => removeIngredient(ing)}
-          >
-            {ing}
-          </Chip>
-        ))}
-      </View>
-
-      <View style={styles.row}>
+      <Animated.View entering={SlideInDown.springify()}>
         <TextInput
-          label="Add Ingredient"
-          value={ingredient}
-          onChangeText={setIngredient}
+          label="Hoagie Name"
+          value={name}
+          onChangeText={setName}
           mode="outlined"
-          style={[styles.input, { flex: 1 }]}
+          style={styles.input}
         />
-        <Button
-          mode="contained-tonal"
-          onPress={addIngredient}
-          style={styles.addBtn}
-        >
-          + Add
+
+        <Text variant="titleSmall" style={styles.label}>
+          Ingredients
+        </Text>
+
+        <IngredientChips ingredients={ingredients} onClose={removeIngredient} />
+        {/* <View style={styles.chipsContainer}>
+          {ingredients.map((ing) => (
+            <Chip
+              key={ing}
+              style={styles.chip}
+              onClose={() => removeIngredient(ing)}
+            >
+              {ing}
+            </Chip>
+          ))}
+        </View> */}
+
+        <View style={styles.row}>
+          <TextInput
+            label="Add Ingredient"
+            value={ingredient}
+            onChangeText={setIngredient}
+            mode="outlined"
+            style={[styles.input, { flex: 1 }]}
+          />
+          <Button
+            mode="contained-tonal"
+            onPress={addIngredient}
+            style={styles.addBtn}
+          >
+            + Add
+          </Button>
+        </View>
+
+        <TextInput
+          label="Image URL (optional)"
+          value={image}
+          onChangeText={setImage}
+          mode="outlined"
+          style={styles.input}
+        />
+
+        {error ? (
+          <HelperText type="error" visible={true}>
+            {error}
+          </HelperText>
+        ) : null}
+
+        <Button mode="contained" onPress={handleSubmit}>
+          Create Hoagie
         </Button>
-      </View>
-
-      <TextInput
-        label="Image URL (optional)"
-        value={image}
-        onChangeText={setImage}
-        mode="outlined"
-        style={styles.input}
-      />
-
-      {error ? (
-        <HelperText type="error" visible={true}>
-          {error}
-        </HelperText>
-      ) : null}
-
-      <Button mode="contained" onPress={handleSubmit}>
-        Create Hoagie
-      </Button>
+      </Animated.View>
     </KeyboardAvoidingView>
   );
 }

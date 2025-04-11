@@ -24,10 +24,10 @@ const topBarOptions = {
   headerTitle: () => (
     <Image
       source={Logo}
-      style={{ height: 120, width: 120, resizeMode: "contain"}}
+      style={{ height: 120, width: 120, resizeMode: "contain" }}
     />
   ),
-}
+};
 
 export default function App() {
   return (
@@ -35,8 +35,11 @@ export default function App() {
       <PaperProvider theme={DefaultTheme}>
         <NavigationContainer>
           <Stack.Navigator initialRouteName="Login">
-            <Stack.Screen name="Login" component={LoginScreen} 
-              options={{headerTitle: ''}} />
+            <Stack.Screen
+              name="Login"
+              component={LoginScreen}
+              options={{ headerShown: false }}
+            />
             <Stack.Screen
               name="Hoagies"
               component={HoagieListScreen}

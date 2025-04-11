@@ -6,8 +6,12 @@ A sandwich recipe creation platform built with **NestJS** and **MongoDB**.
 
 ## Tech Stack
 
-- Backend: [NestJS](https://nestjs.com/)
-- DB: [MongoDB](https://www.mongodb.com/)
+- Framework: NestJS (TypeScript)
+- Database: MongoDB
+- ODM: Mongoose
+- Validation: class-validator
+- Testing: Jest
+- Dockerized: Yes (MongoDB via Docker)
 
 ---
 

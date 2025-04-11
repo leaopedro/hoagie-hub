@@ -1,18 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   View,
   ScrollView,
   StyleSheet,
   ActivityIndicator,
-  Image,
+  ImageSourcePropType,
 } from "react-native";
-import { useRoute } from "@react-navigation/native";
-import { RouteProp } from "@react-navigation/native";
+import { useRoute, RouteProp } from "@react-navigation/native";
 import { RootStackParamList } from "../App";
 import { useApi } from "../hooks/useApi";
 import CommentInput from "../components/CommentInput";
 import CommentList from "../components/CommentList";
-import { Text, Card, Divider, Chip } from "react-native-paper";
+import { Text, Card, Divider } from "react-native-paper";
 import Animated, { SlideInRight } from "react-native-reanimated";
 import IngredientChips from "../components/IngredientChips";
 
@@ -36,18 +35,20 @@ type Comment = {
   createdAt: string;
 };
 
+const PLACEHOLDER_IMAGE = "https://placehold.co/400x200?text=Hoagie";
+
 export default function HoagieDetailScreen() {
   const route = useRoute<RouteProp<RootStackParamList, "HoagieDetail">>();
-  const api = useApi();
   const { hoagieId } = route.params;
+  const api = useApi();
 
   const [hoagie, setHoagie] = useState<Hoagie | null>(null);
-  const [loading, setLoading] = useState(true);
   const [comments, setComments] = useState<Comment[]>([]);
+  const [loading, setLoading] = useState(true);
   const [loadingComments, setLoadingComments] = useState(true);
   const [imageFailed, setImageFailed] = useState(false);
 
-  const fetchComments = async () => {
+  const fetchComments = useCallback(async () => {
     try {
       const res = await api.get(`/hoagies/${hoagieId}/comments`);
       setComments(res.data);
@@ -56,23 +57,23 @@ export default function HoagieDetailScreen() {
     } finally {
       setLoadingComments(false);
     }
-  };
+  }, [api, hoagieId]);
+
+  const fetchHoagie = useCallback(async () => {
+    try {
+      const res = await api.get(`/hoagies/${hoagieId}`);
+      setHoagie(res.data);
+    } catch (err) {
+      console.error("Error fetching hoagie:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, [api, hoagieId]);
 
   useEffect(() => {
-    const fetchHoagie = async () => {
-      try {
-        const res = await api.get(`/hoagies/${hoagieId}`);
-        setHoagie(res.data);
-      } catch (err) {
-        console.error("Error fetching hoagie:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchHoagie();
     fetchComments();
-  }, [hoagieId]);
+  }, [fetchHoagie, fetchComments]);
 
   if (loading || !hoagie) {
     return (
@@ -82,8 +83,8 @@ export default function HoagieDetailScreen() {
     );
   }
 
-  const imageSource = {
-    uri: hoagie.image ?? "https://placehold.co/400x200?text=Hoagie",
+  const imageSource: ImageSourcePropType = {
+    uri: imageFailed ? PLACEHOLDER_IMAGE : (hoagie.image ?? PLACEHOLDER_IMAGE),
   };
 
   return (
@@ -101,13 +102,14 @@ export default function HoagieDetailScreen() {
             </Text>
             <Text style={styles.creator}>By: {hoagie.creator.name}</Text>
 
-            <Divider style={{ marginVertical: 12 }} />
+            <Divider style={styles.divider} />
 
             <Text variant="titleSmall" style={styles.label}>
               Ingredients:
             </Text>
             <IngredientChips ingredients={hoagie.ingredients} />
-            <Divider style={{ marginVertical: 12 }} />
+
+            <Divider style={styles.divider} />
 
             <Text variant="titleSmall" style={styles.label}>
               Comments:
@@ -145,8 +147,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
     marginBottom: 4,
   },
-  text: {
-    fontSize: 16,
-    color: "#333",
+  divider: {
+    marginVertical: 12,
   },
 });

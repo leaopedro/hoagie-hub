@@ -1,12 +1,6 @@
 import React, { useState } from "react";
-import {
-  View,
-  StyleSheet,
-  FlatList,
-  KeyboardAvoidingView,
-  Platform,
-} from "react-native";
-import { TextInput, Button, Text, HelperText, Chip } from "react-native-paper";
+import { View, StyleSheet, KeyboardAvoidingView, Platform } from "react-native";
+import { TextInput, Button, Text, HelperText } from "react-native-paper";
 import { useUser } from "../context/UserContext";
 import { createApi } from "../services/api";
 import { useNavigation } from "@react-navigation/native";
@@ -26,21 +20,22 @@ export default function CreateHoagieScreen() {
   const [ingredient, setIngredient] = useState("");
   const [ingredients, setIngredients] = useState<string[]>([]);
   const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { user } = useUser();
   const api = createApi(user ?? undefined);
   const navigation = useNavigation<NavigationProp>();
 
   const addIngredient = () => {
-    setError("");
-    if (!ingredient.trim()) return;
-    if (ingredients.includes(ingredient.trim())) {
+    const trimmed = ingredient.trim();
+    if (!trimmed) return;
+    if (ingredients.includes(trimmed)) {
       setError("Repeated ingredient");
       return;
     }
-
-    setIngredients([...ingredients, ingredient.trim()]);
+    setIngredients([...ingredients, trimmed]);
     setIngredient("");
+    setError("");
   };
 
   const removeIngredient = (toRemove: string) => {
@@ -48,10 +43,13 @@ export default function CreateHoagieScreen() {
   };
 
   const handleSubmit = async () => {
+    setError("");
     if (!name.trim() || ingredients.length === 0) {
       setError("Name and at least one ingredient are required.");
       return;
     }
+
+    setIsSubmitting(true);
 
     try {
       await api.post("/hoagies", {
@@ -63,6 +61,8 @@ export default function CreateHoagieScreen() {
     } catch (err) {
       console.error(err);
       setError("Failed to create hoagie. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -75,7 +75,7 @@ export default function CreateHoagieScreen() {
         <TextInput
           label="Hoagie Name"
           value={name}
-          onChangeText={setName}
+          onChangeText={(t) => setName(t)}
           mode="outlined"
           style={styles.input}
         />
@@ -85,25 +85,14 @@ export default function CreateHoagieScreen() {
         </Text>
 
         <IngredientChips ingredients={ingredients} onClose={removeIngredient} />
-        {/* <View style={styles.chipsContainer}>
-          {ingredients.map((ing) => (
-            <Chip
-              key={ing}
-              style={styles.chip}
-              onClose={() => removeIngredient(ing)}
-            >
-              {ing}
-            </Chip>
-          ))}
-        </View> */}
 
         <View style={styles.row}>
           <TextInput
             label="Add Ingredient"
             value={ingredient}
-            onChangeText={setIngredient}
+            onChangeText={(t) => setIngredient(t)}
             mode="outlined"
-            style={[styles.input, { flex: 1 }]}
+            style={styles.ingredientInput}
           />
           <Button
             mode="contained-tonal"
@@ -117,18 +106,23 @@ export default function CreateHoagieScreen() {
         <TextInput
           label="Image URL (optional)"
           value={image}
-          onChangeText={setImage}
+          onChangeText={(t) => setImage(t)}
           mode="outlined"
           style={styles.input}
         />
 
-        {error ? (
+        {!!error && (
           <HelperText type="error" visible={true}>
             {error}
           </HelperText>
-        ) : null}
+        )}
 
-        <Button mode="contained" onPress={handleSubmit}>
+        <Button
+          mode="contained"
+          onPress={handleSubmit}
+          loading={isSubmitting}
+          disabled={isSubmitting}
+        >
           Create Hoagie
         </Button>
       </Animated.View>
@@ -137,15 +131,28 @@ export default function CreateHoagieScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 24 },
-  input: { marginBottom: 12 },
-  label: { marginBottom: 8 },
-  row: { flexDirection: "row", alignItems: "center", marginBottom: 12 },
-  addBtn: { marginLeft: 8, alignSelf: "stretch", justifyContent: "center" },
-  chip: { marginRight: 6, marginBottom: 6 },
-  chipsContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
+  container: {
+    flex: 1,
+    padding: 24,
+  },
+  input: {
     marginBottom: 12,
+  },
+  label: {
+    marginBottom: 8,
+  },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  ingredientInput: {
+    flex: 1,
+    marginBottom: 12,
+  },
+  addBtn: {
+    marginLeft: 8,
+    alignSelf: "stretch",
+    justifyContent: "center",
   },
 });

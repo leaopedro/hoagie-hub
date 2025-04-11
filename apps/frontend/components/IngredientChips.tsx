@@ -1,41 +1,41 @@
 import React from "react";
 import { View, StyleSheet } from "react-native";
 import { Chip } from "react-native-paper";
+import Animated, { FadeIn } from "react-native-reanimated";
 
-type IngredientChipsProps = {
+type Props = {
   ingredients: string[];
-  onClose?: (ing: string) => void;
+  onClose?: (ingredient: string) => void;
 };
 
-const IngredientChips: React.FC<IngredientChipsProps> = ({
-  ingredients,
-  onClose,
-}) => {
+export default function IngredientChips({ ingredients, onClose }: Props) {
   return (
-    <View style={styles.chipsContainer}>
-      {ingredients.map((ingredient) => {
-        const chipProps = {
-          style: styles.chip,
-        };
-        if (onClose) chipProps.onClose = () => onClose(ingredient);
-        return (
-          <Chip key={ingredient} {...chipProps}>
+    <View style={styles.container}>
+      {ingredients.map((ingredient) => (
+        <Animated.View
+          key={ingredient}
+          entering={FadeIn}
+          style={styles.chipWrapper}
+        >
+          <Chip onClose={onClose ? () => onClose(ingredient) : undefined}>
             {ingredient}
           </Chip>
-        );
-      })}
+        </Animated.View>
+      ))}
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
-  chip: { marginRight: 6, marginBottom: 6 },
-  chipsContainer: {
+  container: {
     flexDirection: "row",
     flexWrap: "wrap",
     marginBottom: 12,
     marginTop: 12,
   },
+  chipWrapper: {
+    marginRight: 6,
+    marginBottom: 6,
+    maxWidth: "80vw",
+  },
 });
-
-export default IngredientChips;

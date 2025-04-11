@@ -1,19 +1,11 @@
-import React, { useEffect, useState, useCallback } from "react";
-import { useFocusEffect } from "@react-navigation/native";
-import {
-  View,
-  FlatList,
-  StyleSheet,
-  ActivityIndicator,
-  Image,
-  TouchableOpacity,
-} from "react-native";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
+import { View, FlatList, StyleSheet, ActivityIndicator } from "react-native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { FAB } from "react-native-paper";
+
 import { useUser } from "../context/UserContext";
 import { createApi } from "../services/api";
-import { useNavigation } from "@react-navigation/native";
-import { Text, Button, Card, FAB } from "react-native-paper";
-import Animated, { FadeInDown } from "react-native-reanimated";
-import IngredientChips from "../components/IngredientChips";
+import HoagieCard from "../components/HoagieCard";
 
 type Hoagie = {
   _id: string;
@@ -27,30 +19,33 @@ type Hoagie = {
   commentCount: number;
 };
 
+const PAGE_SIZE = 5;
+
 export default function HoagieListScreen() {
   const { user } = useUser();
   const navigation = useNavigation();
+
   const [hoagies, setHoagies] = useState<Hoagie[]>([]);
   const [offset, setOffset] = useState(0);
   const [loading, setLoading] = useState(false);
   const [total, setTotal] = useState(0);
-  const limit = 5;
 
   const fetchHoagies = async (offsetValue: number) => {
     if (!user) return;
     const api = createApi(user);
+
     if (offsetValue === 0) setHoagies([]);
+
     try {
       setLoading(true);
       const res = await api.get(
-        `/hoagies?limit=${limit}&offset=${offsetValue}`,
+        `/hoagies?limit=${PAGE_SIZE}&offset=${offsetValue}`,
       );
-      if (offsetValue === 0) {
-        setHoagies(res.data.data);
-      } else {
-        setHoagies((prev) => [...prev, ...res.data.data]);
-      }
+      const newHoagies = res.data.data;
       setTotal(res.data.total);
+      setHoagies((prev) =>
+        offsetValue === 0 ? newHoagies : [...prev, ...newHoagies],
+      );
     } catch (err) {
       console.error("Failed to load hoagies", err);
     } finally {
@@ -75,56 +70,24 @@ export default function HoagieListScreen() {
 
   const loadMore = () => {
     if (!loading && hoagies.length < total) {
-      setOffset((prev) => prev + limit);
+      setOffset((prev) => prev + PAGE_SIZE);
     }
   };
 
-  const renderHoagie = ({ item }: { item: Hoagie }) => (
-    <Animated.View entering={FadeInDown.duration(300)}>
-      <TouchableOpacity
-        onPress={() =>
-          navigation.navigate("HoagieDetail", { hoagieId: item._id })
-        }
-      >
-        <Card style={styles.card}>
-          <Image
-            source={{
-              uri: item.image ?? "https://placehold.co/400x200?text=Hoagie",
-            }}
-            style={styles.image}
-          />
-          <Card.Content>
-            <Text variant="titleMedium" style={styles.name}>
-              {item.name}
-            </Text>
-            <Text style={styles.meta}>Created by: {item.creator.name}</Text>
-            <IngredientChips ingredients={item.ingredients} />
-            <Button
-              style={styles.meta_right}
-              icon="comment"
-              onPress={() =>
-                navigation.navigate("HoagieDetail", { hoagieId: item._id })
-              }
-            >
-              {item.commentCount}
-            </Button>
-          </Card.Content>
-        </Card>
-      </TouchableOpacity>
-    </Animated.View>
+  const listFooter = useMemo(
+    () => (loading ? <ActivityIndicator size="small" /> : null),
+    [loading],
   );
 
   return (
     <View style={styles.container}>
       <FlatList
         data={hoagies}
-        renderItem={renderHoagie}
+        renderItem={({ item }) => <HoagieCard hoagie={item} />}
         keyExtractor={(item) => item._id}
         onEndReached={loadMore}
         onEndReachedThreshold={0.5}
-        ListFooterComponent={
-          loading ? <ActivityIndicator size="small" /> : null
-        }
+        ListFooterComponent={listFooter}
         contentContainerStyle={{ paddingBottom: 96 }}
       />
 
@@ -142,30 +105,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-  },
-  card: {
-    marginBottom: 12,
-    borderRadius: 8,
-    overflow: "hidden",
-  },
-  image: {
-    width: "100%",
-    height: 160,
-  },
-  name: {
-    marginTop: 10,
-    marginBottom: 4,
-  },
-  meta: {
-    fontSize: 14,
-    color: "#666",
-    marginBottom: 2,
-  },
-  meta_right: {
-    fontSize: 14,
-    color: "#666",
-    marginBottom: 2,
-    alignSelf: "end",
   },
   fab: {
     position: "absolute",

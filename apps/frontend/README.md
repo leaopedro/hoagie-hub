@@ -33,6 +33,7 @@ Ensure the backend is running at:
 ```
 http://localhost:3000
 ```
+
 ### 3. Start the app
 
 ```bash

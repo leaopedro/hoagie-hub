@@ -7,7 +7,7 @@ import { CreateCommentDto } from './dto/create-comment.dto';
 @Injectable()
 export class CommentsService {
   constructor(
-    @InjectModel(Comment.name) private commentModel: Model<CommentDocument>
+    @InjectModel(Comment.name) private commentModel: Model<CommentDocument>,
   ) {}
 
   async create(dto: CreateCommentDto, userId: string) {

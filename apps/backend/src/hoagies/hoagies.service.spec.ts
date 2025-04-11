@@ -67,7 +67,9 @@ describe('HoagiesService', () => {
 
   describe('findOneById', () => {
     it('should throw if invalid ID', async () => {
-      await expect(service.findOneById('invalid-id')).rejects.toThrow(NotFoundException);
+      await expect(service.findOneById('invalid-id')).rejects.toThrow(
+        NotFoundException,
+      );
     });
 
     it('should throw if hoagie not found', async () => {

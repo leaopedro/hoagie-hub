@@ -50,12 +50,12 @@ export class HoagiesService {
 
     return { data: hoagies, total };
   }
-  
+
   async findOneById(id: string) {
     if (!Types.ObjectId.isValid(id)) {
       throw new NotFoundException('Invalid hoagie ID');
     }
-  
+
     const hoagies = await this.hoagieModel.aggregate([
       { $match: { _id: new Types.ObjectId(id) } },
       {
@@ -82,7 +82,7 @@ export class HoagiesService {
       },
       { $project: { comments: 0 } },
     ]);
-  
+
     if (!hoagies[0]) throw new NotFoundException('Hoagie not found');
     return hoagies[0];
   }
